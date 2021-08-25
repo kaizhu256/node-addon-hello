@@ -1,6 +1,7 @@
 // copyright nobody
 // LINT_C_FILE
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <node_api.h>
 
@@ -10,7 +11,8 @@ void finalize_cb(
     void *finalize_hint
 ) {
 // this function will finalize <finalize_data>
-    printf("\n\n[ free finalize_data = '%s' ]\n\n", (char *) finalize_data);
+    printf("\n\n[ napi - free finalize_data = '%s' ]\n\n",
+        (char *) finalize_data);
     free(finalize_data);
 }
 
@@ -20,15 +22,21 @@ static napi_value foo(
 ) {
     napi_status status;
     napi_value result = NULL;
-    const char *data = "world";
+    char *data = malloc(6);
+    data[0] = 'w';
+    data[1] = 'o';
+    data[2] = 'r';
+    data[3] = 'l';
+    data[4] = 'd';
+    data[5] = '\x00';
     status = napi_create_external_buffer(env,   // napi_env env
-        5,                      // size_t length
+        6,                      // size_t length
         (void *) data,          // void* data
         finalize_cb,            // napi_finalize finalize_cb
         NULL,                   // void* finalize_hint
         &result);               // napi_value* result
     assert(status == napi_ok);
-    printf("\n\n[ external data = '%s' ]\n\n", data);
+    printf("\n\n[ napi - malloc data = '%s' ]\n\n", data);
     return result;
 }
 
